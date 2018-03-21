@@ -1,11 +1,11 @@
 {
   "name": "mailtrap",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "simple mailtrap api",
-  "main": "mailtrap.js",
+  "main": "index.js",
   "scripts": {
     "test": "eslint .",
-    "build": "babel lib -d build && cp package.json build"
+    "build": "babel lib -d build && cp package.json build && cp README.md build"
   },
   "repository": {
     "type": "git",
