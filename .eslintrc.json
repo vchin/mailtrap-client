@@ -1,0 +1,17 @@
+{
+  "extends": ["strict", "google"],
+  "parserOptions": {
+    "ecmaVersion": 2017,
+    "ecmaFeatures": {
+      "experimentalObjectRestSpread": true
+    }
+  },
+  "env": {
+    "es6": true
+  },
+  "rules": {
+    "id-length": 0,
+    "require-jsdoc": 0,
+    "valid-jsdoc": 0
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "name": "mailtrap",
+  "version": "0.0.6",
+  "description": "simple mailtrap api",
+  "main": "mailtrap.js",
+  "scripts": {
+    "test": "eslint .",
+    "build": "babel lib -d build && cp package.json build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/vchin/mailtrap"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.0.0-beta.42",
+    "@babel/core": "^7.0.0-beta.42",
+    "@babel/plugin-proposal-object-rest-spread": "^7.0.0-beta.42",
+    "@babel/preset-env": "^7.0.0-beta.42",
+    "eslint": "^4.19.0",
+    "eslint-config-google": "^0.9.1",
+    "eslint-config-strict": "^14.0.1"
+  },
+  "dependencies": {
+    "axios": "^0.18.0",
+    "moment": "^2.21.0"
+  }
+}
