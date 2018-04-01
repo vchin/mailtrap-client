@@ -1,56 +1,84 @@
-export class Options {
-  constructor(
-    public apiToken: string,
-    public jwtToken: string,
-  ) {}
+import axios, { AxiosInstance, AxiosResponse } from "axios";
+import util = require("util");
+import { ClientOptions } from "./ClientOptions";
+import { Inbox } from "./Inbox";
+import { Message } from "./Message";
+import { MessageBodyType } from "./MessageBodyType";
+
+const baseURL = "https://mailtrap.io/api/v1";
+
+function formatResponse(response: AxiosResponse) {
+  return JSON.parse(util.format("%j", response.data));
 }
 
-export class InboxFilter {
-  id: number;
-  name: string;
+export class Client {
+  private client: AxiosInstance;
 
-  byID(id) {
-    this.id = id;
+  constructor(options: ClientOptions) {
+    let headers = null;
+    if (options) {
+      if (options.apiToken) {
+        headers = {
+          Authorization: `Token token=${options.apiToken}`,
+        };
+      }
+      if (options.jwtToken) {
+        headers = {
+          Authorization: `Bearer ${options.jwtToken}`,
+        };
+      }
+    }
+    if (headers === null) {
+      throw new Error("must init client with apiToken or jwtToken");
+    }
+    this.client = axios.create({
+      baseURL,
+      headers,
+    });
   }
 
-  byName(name) {
-    this.name = name;
-  }
-}
-
-export class MessageFilter {
-  messageID: number;
-  toEmailAddress: string;
-
-  byMessageID(id) {
-    this.messageID = id;
+  public get(url: string) {
+    return this.client.get(url).then(formatResponse);
   }
 
-  byToEmailAddress(emailAddress) {
-    this.toEmailAddress = emailAddress;
-  }
-}
-
-export default class Client {
-  constructor(public options: Options) {}
-
-  async get(url) {
-
+  public getInboxes(inboxFilter: (inbox: Inbox) => boolean): Promise<Inbox[]> {
+    return this.get("/inboxes")
+      .then((inboxes) => {
+        if (inboxFilter) {
+          return inboxes.filter(inboxFilter);
+        }
+        return inboxes;
+      });
   }
 
-  async getInboxes(filter: InboxFilter) {
-
+  public getMessages(inboxID: number, messageFilter: (message: Message) => boolean): Promise<Message[]> {
+    return this.get(`/inboxes/${inboxID}/messages`)
+      .then((messages) => {
+        if (messageFilter) {
+          return messages.filter(messageFilter);
+        }
+        return messages;
+      });
   }
 
-  async getMessages(inboxID: number, filter: MessageFilter) {
-
+  public deleteMessage(inboxID: number, messageID: number) {
+    return this.client.delete(`/inboxes/${inboxID}/messages/${messageID}`).then(formatResponse);
   }
 
-  async deleteMessages(inboxID: number, filter: MessageFilter) {
-
+  public deleteMessages(inboxID: number, messageFilter: (message: Message) => boolean) {
+    return this.getMessages(inboxID, messageFilter)
+      .then((messages) =>
+        Promise.all(messages.map((message) => this.deleteMessage(inboxID, message.id))),
+      );
   }
 
-  async getMessageBody(bodyType) {
-
+  /**
+   * Returns the message body of a message by body type
+   * @param inboxID
+   * @param messageID
+   * @param bodyType
+   */
+  public getMessageBody(inboxID: number, messageID: number, bodyType: MessageBodyType) {
+    return this.get(`/inboxes/${inboxID}/messages/${messageID}/body.${bodyType.toString()}`);
   }
 }
