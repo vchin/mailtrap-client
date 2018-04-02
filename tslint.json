@@ -1,0 +1,16 @@
+{
+    "defaultSeverity": "error",
+    "extends": [
+        "tslint:recommended"
+    ],
+    "jsRules": {},
+    "rules": {
+        "variable-name": [true, "ban-keywords", "check-format", "allow-snake-case"]
+    },
+    "rulesDirectory": [],
+    "linterOptions": {
+      "exclude": [
+          "src/mock-server.ts"
+      ]
+  }
+}
