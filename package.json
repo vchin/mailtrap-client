@@ -2,10 +2,11 @@
   "name": "mailtrap",
   "version": "1.0.0",
   "description": "simple mailtrap api",
-  "main": "index.js",
+  "main": "dist/main.js",
+  "types": "dist/main.d.ts",
   "scripts": {
     "lint": "tslint src/**/*.ts",
-    "build": "tsc --declaration",
+    "build": "tsc",
     "test": "tsc && ava --verbose",
     "ci-test": "concurrently \"npm run mock-server\" \"ava --verbose\" -s last -k",
     "mock-server": "node dist/mock-server.js"
