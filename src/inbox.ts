@@ -1,3 +1,5 @@
+import { AxiosInstance } from "axios";
+
 export class Inbox {
   public id: number;
   public company_id: number;
@@ -16,4 +18,8 @@ export class Inbox {
   public smtp_ports: number[];
   public pop3_ports: number[];
   public has_inbox_address: boolean;
+
+  constructor(inbox: object) {
+    Object.assign(this, inbox);
+  }
 }

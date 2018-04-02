@@ -1,3 +1,4 @@
+import { AxiosInstance } from "axios";
 import { BlacklistsReportInfo } from "./BlacklistsReportInfo";
 
 export class Message {
@@ -23,4 +24,8 @@ export class Message {
   public download_path: string;
   public viruses_report_info: boolean;
   public blacklists_report_info: BlacklistsReportInfo;
+
+  constructor(message: object) {
+    Object.assign(this, message);
+  }
 }
