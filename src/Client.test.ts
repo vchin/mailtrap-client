@@ -1,75 +1,73 @@
-import test from "ava";
-import { assert } from "chai";
-import { Client } from "./Client";
-import { ClientOptions } from "./ClientOptions";
-import { Inbox } from "./Inbox";
-import { Message } from "./Message";
+import { Client, IClientOptions } from "./Client";
 import { MessageBodyType } from "./MessageBodyType";
-import { inboxes, messages } from "./mock-server";
+import { mock, inboxes, messages } from "./__MOCKS__/MockMailtrap";
 
-const options = new ClientOptions("apiToken");
-options.endpoint = "http://localhost:3000";
+const options: IClientOptions = {
+  credentials: {
+    apiToken: "api",
+  },
+  endpoint: "http://localhost:3000",
+};
 
-test("init client with no apiToken or jwtToken throws error", (t) => {
-  assert.throws(() => new Client(new ClientOptions("", "")));
-  t.pass();
-});
+describe("Client", () => {
+  afterAll(() => {
+    mock.close();
+  });
 
-test("can get inboxes", async (t) => {
-  const client = new Client(options);
-  const res = await client.getInboxes();
-  assert.deepEqual(res.map((r) => r.inbox), inboxes.map((inbox: object) => new Inbox(inbox)));
-  t.pass();
-});
+  it("init client with no apiToken or jwtToken throws error", async () => {
+    expect(() => new Client({
+      credentials: {},
+    })).toThrow();
+  });
 
-test("can get inbox", async (t) => {
-  const client = new Client(options);
-  const res = await client.getInbox(3);
-  assert.deepEqual(res.inbox, new Inbox(inboxes[0]));
-  t.pass();
-});
+  it("can get inboxes", async () => {
+    const client = new Client(options);
+    const res = await client.getInboxes();
+    expect(res).toMatchObject(inboxes);
+  });
 
-test("can get inbox messages", async (t) => {
-  const client = new Client(options);
-  const res = await client.getMessages(3);
-  assert.deepEqual(res.map((r) => r.message), messages.filter((m) => m.inbox_id === 3).map((m) => new Message(m)));
-  t.pass();
-});
+  it("can get inbox", async () => {
+    const client = new Client(options);
+    const res = await client.getInbox(3);
+    expect(res).toMatchObject(inboxes[0]);
+  });
 
-test("can get message html body", async (t) => {
-  const client = new Client(options);
-  const res = await client.getMessageBody(3, 1, MessageBodyType.html);
-  assert.strictEqual(res, "html");
-  t.pass();
-});
+  it("can get inbox messages", async () => {
+    const client = new Client(options);
+    const res = await client.getMessages(3);
+    expect(res).toMatchObject(messages.filter((m) => m.inbox_id === 3));
+  });
 
-test("can get message txt body", async (t) => {
-  const client = new Client(options);
-  const res = await client.getMessageBody(3, 1, MessageBodyType.txt);
-  assert.strictEqual(res, "txt");
-  t.pass();
-});
+  it("can get message html body", async () => {
+    const client = new Client(options);
+    const res = await client.getMessageBody(3, 1, MessageBodyType.html);
+    expect(res).toEqual("html");
+  });
 
-test("can get message raw body", async (t) => {
-  const client = new Client(options);
-  const res = await client.getMessageBody(3, 1, MessageBodyType.raw);
-  assert.strictEqual(res, "raw");
-  t.pass();
-});
+  it("can get message txt body", async () => {
+    const client = new Client(options);
+    const res = await client.getMessageBody(3, 1, MessageBodyType.txt);
+    expect(res).toEqual("txt");
+  });
 
-test("can get message eml body", async (t) => {
-  const client = new Client(options);
-  const res = await client.getMessageBody(3, 1, MessageBodyType.eml);
-  assert.strictEqual(res, "eml");
-  t.pass();
-});
+  it("can get message raw body", async () => {
+    const client = new Client(options);
+    const res = await client.getMessageBody(3, 1, MessageBodyType.raw);
+    expect(res).toEqual("raw");
+  });
 
-test("can delete message", async (t) => {
-  const client = new Client(options);
-  const res = await client.getMessages(3);
-  assert.strictEqual(res.length, 1);
-  const msg = res[0];
-  const res2 = await msg.delete();
-  assert.strictEqual(res2, "ok");
-  t.pass();
+  it("can get message eml body", async () => {
+    const client = new Client(options);
+    const res = await client.getMessageBody(3, 1, MessageBodyType.eml);
+    expect(res).toEqual("eml");
+  });
+
+  it("can delete message", async () => {
+    const client = new Client(options);
+    const res = await client.getMessages(3);
+    expect(res.length).toEqual(1);
+    const msg = res[0];
+    const res2 = await client.deleteMessage(msg.inbox_id, msg.id);
+    expect(res2).toEqual("ok");
+  });
 });
