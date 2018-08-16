@@ -10,7 +10,7 @@ export interface IInbox {
   emails_count: number;
   emails_unread_count: number;
   email_username: string;
-  email_username_enabled: string;
+  email_username_enabled: boolean;
   email_domain: string;
   last_message_sent_at_timestamp: number;
   smtp_ports: number[];

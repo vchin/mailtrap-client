@@ -1,84 +1,78 @@
 import axios, { AxiosInstance, AxiosResponse } from "axios";
-import util = require("util");
-import { ClientOptions } from "./ClientOptions";
-import { Inbox } from "./IInbox";
-import { InboxClient } from "./InboxClient";
-import { Message } from "./IMessage";
+import * as util from "util";
 import { MessageBodyType } from "./MessageBodyType";
-import { MessageClient } from "./MessageClient";
+import { IInbox } from "./IInbox";
+import { IMessage } from "./IMessage";
 
-function formatResponse(response: AxiosResponse) {
-  return JSON.parse(util.format("%j", response.data));
+export interface ICredentials {
+  apiToken?: string;
+  jwt?: string;
+}
+
+export interface IClientOptions {
+  credentials: ICredentials;
+  pollingInterval?: number;
+  timeout?: number;
+  endpoint?: string;
 }
 
 export class Client {
-  public options: ClientOptions;
-  private client: AxiosInstance;
-
-  constructor(options: ClientOptions) {
-    this.options = options;
-    let headers = null;
-    if (options) {
-      if (options.apiToken) {
-        headers = {
-          Authorization: `Token token=${options.apiToken}`,
-        };
-      }
-      if (options.jwtToken) {
-        headers = {
-          Authorization: `Bearer ${options.jwtToken}`,
-        };
-      }
+  private readonly client: AxiosInstance;
+  private readonly pollingInterval: number;
+  private readonly timeout: number;
+  constructor(private readonly options: IClientOptions) {
+    if (!options.credentials.apiToken && !options.credentials.jwt) {
+      throw new Error("Must initialize Client with credentials");
     }
-    if (headers === null) {
-      throw new Error("must init client with apiToken or jwtToken");
-    }
+    this.pollingInterval = options.pollingInterval || 1000;
+    this.timeout = options.timeout || 60000;
     this.client = axios.create({
-      baseURL: options.endpoint,
-      headers,
-    });
+      baseURL: options.endpoint || "https://mailtrap.io/api/v1",
+      headers: {
+        Authorization: options.credentials.apiToken ? `Token token=${options.credentials.apiToken}` : `Bearer ${options.credentials.jwt}`
+      },
+    })
+  }
+
+  private formatResponse(response: AxiosResponse) {
+    return JSON.parse(util.format("%j", response.data));
   }
 
   public get(url: string) {
-    return this.client.get(url).then(formatResponse);
+    return this.client.get(url).then(this.formatResponse);
   }
 
-  public getInbox(inboxID: number): Promise<InboxClient> {
-    return this.get(`/inboxes/${inboxID}`)
-      .then((inbox) => new InboxClient(new Inbox(inbox), this));
+  public getInbox(inboxID: number): Promise<IInbox> {
+    return this.get(`/inboxes/${inboxID}`);
   }
 
-  public getInboxes(inboxFilter?: (inbox: Inbox) => boolean): Promise<InboxClient[]> {
+  public getInboxes(inboxFilter?: (inbox: IInbox) => boolean): Promise<IInbox[]> {
     return this.get("/inboxes")
       .then((inboxes) => {
         if (inboxFilter) {
           return inboxes.filter(inboxFilter);
         }
         return inboxes;
-      })
-      .then((inboxes) => inboxes.map((inbox: object) => new InboxClient(new Inbox(inbox), this)));
+      });
   }
 
-  public getMessages(inboxID: number, messageFilter?: (message: Message) => boolean): Promise<MessageClient[]> {
+  public getMessages(inboxID: number, messageFilter?: (message: IMessage) => boolean): Promise<IMessage[]> {
     return this.get(`/inboxes/${inboxID}/messages`)
       .then((messages) => {
         if (messageFilter) {
           return messages.filter(messageFilter);
         }
         return messages;
-      })
-      .then((messages) => messages.map((message: object) => new MessageClient(new Message(message), this)));
+      });
   }
 
   public deleteMessage(inboxID: number, messageID: number) {
-    return this.client.delete(`/inboxes/${inboxID}/messages/${messageID}`).then(formatResponse);
+    return this.client.delete(`/inboxes/${inboxID}/messages/${messageID}`).then(this.formatResponse);
   }
 
-  public deleteMessages(inboxID: number, messageFilter?: (message: Message) => boolean) {
+  public deleteMessages(inboxID: number, messageFilter?: (message: IMessage) => boolean) {
     return this.getMessages(inboxID, messageFilter)
-      .then((messages) =>
-        Promise.all(messages.map((message) => message.delete())),
-      );
+      .then((messages) => Promise.all(messages.map((message) => this.deleteMessage(inboxID, message.id))))
   }
 
   public getMessageBody(inboxID: number, messageID: number, bodyType: MessageBodyType) {

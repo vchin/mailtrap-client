@@ -1,38 +1,41 @@
 import test from "ava";
 import { assert } from "chai";
-import { Client } from "./Client";
-import { ClientOptions } from "./ClientOptions";
-import { Inbox } from "./IInbox";
-import { Message } from "./IMessage";
+import { Client, IClientOptions } from "./Client";
 import { MessageBodyType } from "./MessageBodyType";
 import { inboxes, messages } from "./mock-server";
 
-const options = new ClientOptions("apiToken");
-options.endpoint = "http://localhost:3000";
+const options: IClientOptions = {
+  credentials: {
+    apiToken: "api",
+  },
+  endpoint: "http://localhost:3000",
+};
 
 test("init client with no apiToken or jwtToken throws error", (t) => {
-  assert.throws(() => new Client(new ClientOptions("", "")));
+  assert.throws(() => new Client({
+    credentials: {},
+  }));
   t.pass();
 });
 
 test("can get inboxes", async (t) => {
   const client = new Client(options);
   const res = await client.getInboxes();
-  assert.deepEqual(res.map((r) => r.inbox), inboxes.map((inbox: object) => new Inbox(inbox)));
+  assert.deepEqual(res, inboxes);
   t.pass();
 });
 
 test("can get inbox", async (t) => {
   const client = new Client(options);
   const res = await client.getInbox(3);
-  assert.deepEqual(res.inbox, new Inbox(inboxes[0]));
+  assert.deepEqual(res, inboxes[0]);
   t.pass();
 });
 
 test("can get inbox messages", async (t) => {
   const client = new Client(options);
   const res = await client.getMessages(3);
-  assert.deepEqual(res.map((r) => r.message), messages.filter((m) => m.inbox_id === 3).map((m) => new Message(m)));
+  assert.deepEqual(res, messages.filter((m) => m.inbox_id === 3));
   t.pass();
 });
 
@@ -69,7 +72,7 @@ test("can delete message", async (t) => {
   const res = await client.getMessages(3);
   assert.strictEqual(res.length, 1);
   const msg = res[0];
-  const res2 = await msg.delete();
+  const res2 = await client.deleteMessage(msg.inbox_id, msg.id);
   assert.strictEqual(res2, "ok");
   t.pass();
 });

@@ -1,6 +1,6 @@
 import { IBlacklistsReportInfo } from "./IBlacklistsReportInfo";
 
-export class Message {
+export interface IMessage {
   id: number;
   inbox_id: number;
   subject: string;
@@ -16,7 +16,7 @@ export class Message {
   created_at: string;
   updated_at: string;
   sent_at_timestamp: number;
-  human_size: number;
+  human_size: string;
   html_path: string;
   txt_path: string;
   raw_path: string;
