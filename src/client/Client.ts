@@ -1,5 +1,5 @@
 import axios, { AxiosInstance, AxiosResponse } from "axios";
-import { Moment } from "moment";
+import * as moment from "moment";
 import * as util from "util";
 import { IInbox } from "./IInbox";
 import { IMessage } from "./IMessage";
@@ -13,20 +13,20 @@ export interface ICredentials {
 export interface IClientOptions {
   credentials: ICredentials;
   pollingInterval?: number;
-  timeout?: number;
+  waitTimeout?: number;
   endpoint?: string;
 }
 
 export class Client {
   private readonly client: AxiosInstance;
   private readonly pollingInterval: number;
-  private readonly timeout: number;
+  private readonly waitTimeout: number;
   constructor(private readonly options: IClientOptions) {
     if (!options.credentials.apiToken && !options.credentials.jwt) {
       throw new Error("Must initialize Client with credentials");
     }
     this.pollingInterval = options.pollingInterval || 1000;
-    this.timeout = options.timeout || 60000;
+    this.waitTimeout = options.waitTimeout || 60000;
     this.client = axios.create({
       baseURL: options.endpoint || "https://mailtrap.io/api/v1",
       headers: {
@@ -83,14 +83,28 @@ export class Client {
   public async waitForMessages(
     inboxID: number,
     condition: (messages: IMessage[]) => boolean,
-    messageFilter?: (message: IMessage) => boolean, startTime?: Moment): Promise<void> {
+    messageFilter?: (message: IMessage) => boolean, startTime?: moment.Moment): Promise<void> {
+    if (!startTime) {
+      startTime = moment();
+    }
     const messages = await this.getMessages(inboxID, messageFilter);
     const conditionResult = await condition(messages);
     if (conditionResult) {
       return;
     }
     await new Promise((resolve) => setTimeout(resolve, this.pollingInterval));
+    if (this.isWaitTimeoutExceeded(startTime)) {
+      throw new Error("Timed out waiting for messages");
+    }
+    return this.waitForMessages(inboxID, condition, messageFilter, startTime);
+  }
 
+  private isWaitTimeoutExceeded(startTime: moment.Moment): boolean {
+    const duration = moment.duration(moment().diff(startTime));
+    if (this.waitTimeout - duration.asMilliseconds() > 0) {
+      return false;
+    }
+    return true;
   }
 
   private formatResponse(response: AxiosResponse) {

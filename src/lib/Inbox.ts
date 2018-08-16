@@ -10,11 +10,7 @@ export class Inbox {
     condition: (messages: IMessage[]) => boolean,
     messageFilter?: (message: IMessage) => boolean): Promise<void> {
     await this.init();
-    const messages = await this.client.getMessages(this.self.id, messageFilter);
-    const conditionResult = await condition(messages);
-    if (conditionResult) {
-      return;
-    }
+    await this.client.waitForMessages(this.self.id, condition, messageFilter);
   }
 
   public async getMessages(messageFilter?: (message: IMessage) => boolean): Promise<IMessage[]> {
