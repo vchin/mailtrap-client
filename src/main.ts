@@ -1,3 +1,3 @@
-import { Client, IClientOptions } from "./Client";
+import { Client, IClientOptions } from "./client/Client";
 
 exports.Client = Client;

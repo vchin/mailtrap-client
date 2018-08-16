@@ -1,3 +1,4 @@
+/* tslint:disable */
 import express = require("express");
 
 const app = express();
@@ -121,18 +122,18 @@ app.get("/inboxes", (req, res) => {
 
 app.get("/inboxes/:inboxID", (req, res) => {
   const inboxID = req.params.inboxID;
-  res.json(inboxes.find(i => i.id === parseInt(inboxID)));
+  res.json(inboxes.find((i) => i.id === parseInt(inboxID)));
 });
 
 app.get("/inboxes/:inboxID/messages", (req, res) => {
   const inboxID = req.params.inboxID;
-  res.json(messages.filter(m => m.inbox_id === parseInt(inboxID)));
+  res.json(messages.filter((m) => m.inbox_id === parseInt(inboxID)));
 });
 
 app.get("/inboxes/:inboxID/messages/:messageID", (req, res) => {
   const inboxID = req.params.inboxID;
   const messageID = req.params.messageID;
-  res.json(messages.find(m => m.id === parseInt(messageID) && m.inbox_id === parseInt(inboxID)));
+  res.json(messages.find((m) => m.id === parseInt(messageID) && m.inbox_id === parseInt(inboxID)));
 });
 
 app.delete("/inboxes/:inboxID/messages/:messageID", (req, res) => {

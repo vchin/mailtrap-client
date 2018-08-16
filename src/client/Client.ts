@@ -1,8 +1,9 @@
 import axios, { AxiosInstance, AxiosResponse } from "axios";
+import { Moment } from "moment";
 import * as util from "util";
-import { MessageBodyType } from "./MessageBodyType";
 import { IInbox } from "./IInbox";
 import { IMessage } from "./IMessage";
+import { MessageBodyType } from "./MessageBodyType";
 
 export interface ICredentials {
   apiToken?: string;
@@ -29,13 +30,13 @@ export class Client {
     this.client = axios.create({
       baseURL: options.endpoint || "https://mailtrap.io/api/v1",
       headers: {
-        Authorization: options.credentials.apiToken ? `Token token=${options.credentials.apiToken}` : `Bearer ${options.credentials.jwt}`
+        Authorization:
+          options.credentials.apiToken ?
+          `Token token=${options.credentials.apiToken}`
+          :
+          `Bearer ${options.credentials.jwt}`,
       },
-    })
-  }
-
-  private formatResponse(response: AxiosResponse) {
-    return JSON.parse(util.format("%j", response.data));
+    });
   }
 
   public get(url: string) {
@@ -72,10 +73,27 @@ export class Client {
 
   public deleteMessages(inboxID: number, messageFilter?: (message: IMessage) => boolean) {
     return this.getMessages(inboxID, messageFilter)
-      .then((messages) => Promise.all(messages.map((message) => this.deleteMessage(inboxID, message.id))))
+      .then((messages) => Promise.all(messages.map((message) => this.deleteMessage(inboxID, message.id))));
   }
 
   public getMessageBody(inboxID: number, messageID: number, bodyType: MessageBodyType) {
     return this.get(`/inboxes/${inboxID}/messages/${messageID}/body.${bodyType.toString()}`);
+  }
+
+  public async waitForMessages(
+    inboxID: number,
+    condition: (messages: IMessage[]) => boolean,
+    messageFilter?: (message: IMessage) => boolean, startTime?: Moment): Promise<void> {
+    const messages = await this.getMessages(inboxID, messageFilter);
+    const conditionResult = await condition(messages);
+    if (conditionResult) {
+      return;
+    }
+    await new Promise((resolve) => setTimeout(resolve, this.pollingInterval));
+
+  }
+
+  private formatResponse(response: AxiosResponse) {
+    return JSON.parse(util.format("%j", response.data));
   }
 }
