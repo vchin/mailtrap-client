@@ -15,7 +15,7 @@ module.exports = {
   "collectCoverage": true,
   "collectCoverageFrom": [
     "src/**/*.ts",
-    "src/main.ts",
+    "!src/main.ts",
     "!src/__MOCKS__/*.ts",
   ],
 };

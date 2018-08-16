@@ -6,22 +6,34 @@ jobs:
     working_directory: ~/mailtrap-client
     steps:
       - checkout
+      - restore_cache:
+          key: npm-dependency-cache-{{ checksum "./package.json" }}
       - run:
           name: "lint"
           command: |
             npm install
             npm run lint
+      - save_cache:
+          key: npm-dependency-cache-{{ checksum "./package.json" }}
+          paths:
+            - ./node_modules
   build-test:
     docker:
       - image: circleci/node:10.1.0
     working_directory: ~/mailtrap-client
     steps:
       - checkout
+      - restore_cache:
+          key: npm-dependency-cache-{{ checksum "./package.json" }}
       - run:
           name: "test"
           command: |
             npm install
             npm test
+      - save_cache:
+          key: npm-dependency-cache-{{ checksum "./package.json" }}
+          paths:
+            - ./node_modules
 workflows:
   version: 2
   build-test-publish:
