@@ -1,5 +1,16 @@
 version: 2
 jobs:
+  lint:
+    docker:
+      - image: circleci/node:10.1.0
+    working_directory: ~/mailtrap-client
+    steps:
+      - checkout
+      - run:
+          name: "lint"
+          command: |
+            npm install
+            npm run lint
   build-test:
     docker:
       - image: circleci/node:10.1.0
@@ -15,4 +26,5 @@ workflows:
   version: 2
   build-test-publish:
     jobs:
+      - lint
       - build-test
