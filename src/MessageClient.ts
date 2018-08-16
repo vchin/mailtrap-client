@@ -1,5 +1,5 @@
 import { Client } from "./Client";
-import { Message } from "./Message";
+import { Message } from "./IMessage";
 import { MessageBodyType } from "./MessageBodyType";
 
 export class MessageClient {

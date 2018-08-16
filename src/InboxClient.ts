@@ -1,7 +1,7 @@
 import moment = require("moment");
 import { Client } from "./Client";
-import { Inbox } from "./Inbox";
-import { Message } from "./Message";
+import { Inbox } from "./IInbox";
+import { Message } from "./IMessage";
 import { MessageClient } from "./MessageClient";
 
 export class InboxClient {

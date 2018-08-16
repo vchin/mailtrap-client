@@ -2,8 +2,8 @@ import test from "ava";
 import { assert } from "chai";
 import { Client } from "./Client";
 import { ClientOptions } from "./ClientOptions";
-import { Inbox } from "./Inbox";
-import { Message } from "./Message";
+import { Inbox } from "./IInbox";
+import { Message } from "./IMessage";
 import { MessageBodyType } from "./MessageBodyType";
 import { inboxes, messages } from "./mock-server";
 

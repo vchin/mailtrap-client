@@ -1,8 +1,8 @@
 import { Client } from "./Client";
 import { ClientOptions } from "./ClientOptions";
-import { Inbox } from "./Inbox";
+import { Inbox } from "./IInbox";
 import { InboxClient } from "./InboxClient";
-import { Message } from "./Message";
+import { Message } from "./IMessage";
 import { MessageBodyType } from "./MessageBodyType";
 import { MessageClient } from "./MessageClient";
 

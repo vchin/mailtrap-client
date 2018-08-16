@@ -1,9 +1,9 @@
 import axios, { AxiosInstance, AxiosResponse } from "axios";
 import util = require("util");
 import { ClientOptions } from "./ClientOptions";
-import { Inbox } from "./Inbox";
+import { Inbox } from "./IInbox";
 import { InboxClient } from "./InboxClient";
-import { Message } from "./Message";
+import { Message } from "./IMessage";
 import { MessageBodyType } from "./MessageBodyType";
 import { MessageClient } from "./MessageClient";
 
