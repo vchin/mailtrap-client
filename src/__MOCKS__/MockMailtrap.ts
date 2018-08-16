@@ -109,6 +109,12 @@ export const messages = [
   },
 ];
 
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
+  next();
+});
+
 app.get("/inboxes", (req, res) => {
   res.json(inboxes);
 });
@@ -149,6 +155,6 @@ app.get("/inboxes/:inboxID/messages/:messageID/body.eml", (req, res) => {
   res.send("eml");
 });
 
-app.listen(3000, () => {
+export const mock = app.listen(3000, () => {
   console.log("Mock server started on port 3000");
 });
