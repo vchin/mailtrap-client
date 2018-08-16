@@ -9,7 +9,7 @@ jobs:
       - run:
           name: "test"
           command: |
-            npm ci
+            npm install
             npm test
 workflows:
   version: 2
