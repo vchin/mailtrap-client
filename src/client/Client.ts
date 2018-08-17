@@ -1,5 +1,5 @@
-import * as request from "superagent";
 import * as moment from "moment";
+import * as request from "superagent";
 import * as util from "util";
 import { IInbox } from "./IInbox";
 import { IMessage } from "./IMessage";
@@ -22,25 +22,6 @@ export class Client {
     this.waitTimeout = options.waitTimeout || 60000;
     this.endpoint = options.endpoint || "https://mailtrap.io/api/v1";
     this.apiToken = options.apiToken;
-  }
-
-  private async delete(path: string) {
-    const res = await request.delete(`${this.endpoint}${path}`).set('Authorization', `Token token=${this.apiToken}`);
-    return res.text;
-  }
-
-  private get(path: string) {
-    return request(`${this.endpoint}${path}`).set('Authorization', `Token token=${this.apiToken}`);
-  }
-
-  private async getJSON(path: string): Promise<any> {
-    const res = await this.get(path);
-    return res.body;
-  }
-
-  private async getText(path: string): Promise<string> {
-    const res = await this.get(path);
-    return res.text;
   }
 
   public getInbox(inboxID: number): Promise<IInbox> {
@@ -97,6 +78,25 @@ export class Client {
       throw new Error("Timed out waiting for messages");
     }
     return this.waitForMessages(inboxID, condition, messageFilter, startTime);
+  }
+
+  private async delete(path: string) {
+    const res = await request.delete(`${this.endpoint}${path}`).set("Authorization", `Token token=${this.apiToken}`);
+    return res.text;
+  }
+
+  private get(path: string) {
+    return request(`${this.endpoint}${path}`).set("Authorization", `Token token=${this.apiToken}`);
+  }
+
+  private async getJSON(path: string): Promise<any> {
+    const res = await this.get(path);
+    return res.body;
+  }
+
+  private async getText(path: string): Promise<string> {
+    const res = await this.get(path);
+    return res.text;
   }
 
   private isWaitTimeoutExceeded(startTime: moment.Moment): boolean {

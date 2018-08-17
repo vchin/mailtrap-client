@@ -1,6 +1,6 @@
+import { inboxes, messages, mock } from "../__MOCKS__/MockMailtrap";
 import { Client, IClientOptions } from "./Client";
 import { MessageBodyType } from "./MessageBodyType";
-import { mock, inboxes, messages } from "../__MOCKS__/MockMailtrap";
 
 const options: IClientOptions = {
   apiToken: "api",
