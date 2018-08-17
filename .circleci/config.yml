@@ -28,7 +28,7 @@ jobs:
       - run:
           name: "test"
           command: |
-            npm install -g codecov
+            sudo npm install -g codecov
             npm install
             npm run test:integration
             codecov
