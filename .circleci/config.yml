@@ -29,7 +29,7 @@ jobs:
           name: "test"
           command: |
             npm install
-            npm test
+            npm run test:integration
       - save_cache:
           key: npm-dependency-cache-{{ checksum "./package.json" }}
           paths:
