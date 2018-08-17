@@ -4,6 +4,7 @@ import { MessageBodyType } from "./MessageBodyType";
 
 const options: IClientOptions = {
   apiToken: "api",
+  waitTimeout: 2000,
   endpoint: "http://localhost:3000",
 };
 
@@ -61,5 +62,15 @@ describe("Client", () => {
     const msg = res[0];
     const res2 = await client.deleteMessage(msg.inbox_id, msg.id);
     expect(res2).toEqual("ok");
+  });
+
+  it("throws time out error when wait for messages exceeds timeout", async () => {
+    const client = new Client(options);
+    try {
+      await client.waitForMessages(3, (messages) => messages.length > 10)
+      expect(true).toBe(false);
+    } catch (e) {
+      expect(e).toBeDefined();
+    }
   });
 });
