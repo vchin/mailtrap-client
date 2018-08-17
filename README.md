@@ -7,7 +7,6 @@ Simple mailtrap.io client and helper library
 ```
 npm install --save-dev mailtrap-client
 ```
-
 # Usage Examples
 ## init
 ```js
@@ -16,21 +15,21 @@ const client = new Client({
 });
 const inbox = new Inbox(client, 'inboxName');
 ```
-## Wait for messages
+## wait for messages
 ```js
 await inbox.waitForMessages((messages) => messages.length > 2);
 ```
-## Get messages
+## get messages
 ```js
 const messages = await inbox.getMessages();
 const filteredMessages = await inbox.getMessages((m) => m.subject === 'subject');
 ```
-## Delete messages
+## delete messages
 ```js
 await inbox.deleteMessages();
 await inbox.deleteMessages((m) => m.subject === 'subject');
 ```
-## Get message body
+## get message body
 ```js
 const msgID = filteredMessages[0].id;
 const txt = await client.getMessageBody(inbox.ID, msgID, 'txt');
