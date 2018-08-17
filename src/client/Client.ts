@@ -1,54 +1,54 @@
-import axios, { AxiosInstance, AxiosResponse } from "axios";
+import * as request from "superagent";
 import * as moment from "moment";
 import * as util from "util";
 import { IInbox } from "./IInbox";
 import { IMessage } from "./IMessage";
 import { MessageBodyType } from "./MessageBodyType";
 
-export interface ICredentials {
-  apiToken?: string;
-  jwt?: string;
-}
-
 export interface IClientOptions {
-  credentials: ICredentials;
+  apiToken: string;
   pollingInterval?: number;
   waitTimeout?: number;
   endpoint?: string;
 }
 
 export class Client {
-  private readonly client: AxiosInstance;
+  private readonly apiToken: string;
   private readonly pollingInterval: number;
   private readonly waitTimeout: number;
-  constructor(private readonly options: IClientOptions) {
-    if (!options.credentials.apiToken && !options.credentials.jwt) {
-      throw new Error("Must initialize Client with credentials");
-    }
+  private readonly endpoint: string;
+  constructor(options: IClientOptions) {
     this.pollingInterval = options.pollingInterval || 1000;
     this.waitTimeout = options.waitTimeout || 60000;
-    this.client = axios.create({
-      baseURL: options.endpoint || "https://mailtrap.io/api/v1",
-      headers: {
-        Authorization:
-          options.credentials.apiToken ?
-          `Token token=${options.credentials.apiToken}`
-          :
-          `Bearer ${options.credentials.jwt}`,
-      },
-    });
+    this.endpoint = options.endpoint || "https://mailtrap.io/api/v1";
+    this.apiToken = options.apiToken;
   }
 
-  public get(url: string) {
-    return this.client.get(url).then(this.formatResponse);
+  private async delete(path: string) {
+    const res = await request.delete(`${this.endpoint}${path}`).set('Authorization', `Token token=${this.apiToken}`);
+    return res.text;
+  }
+
+  private get(path: string) {
+    return request(`${this.endpoint}${path}`).set('Authorization', `Token token=${this.apiToken}`);
+  }
+
+  private async getJSON(path: string): Promise<any> {
+    const res = await this.get(path);
+    return res.body;
+  }
+
+  private async getText(path: string): Promise<string> {
+    const res = await this.get(path);
+    return res.text;
   }
 
   public getInbox(inboxID: number): Promise<IInbox> {
-    return this.get(`/inboxes/${inboxID}`);
+    return this.getJSON(`/inboxes/${inboxID}`);
   }
 
   public getInboxes(inboxFilter?: (inbox: IInbox) => boolean): Promise<IInbox[]> {
-    return this.get("/inboxes")
+    return this.getJSON("/inboxes")
       .then((inboxes) => {
         if (inboxFilter) {
           return inboxes.filter(inboxFilter);
@@ -58,7 +58,7 @@ export class Client {
   }
 
   public getMessages(inboxID: number, messageFilter?: (message: IMessage) => boolean): Promise<IMessage[]> {
-    return this.get(`/inboxes/${inboxID}/messages`)
+    return this.getJSON(`/inboxes/${inboxID}/messages`)
       .then((messages) => {
         if (messageFilter) {
           return messages.filter(messageFilter);
@@ -68,7 +68,7 @@ export class Client {
   }
 
   public deleteMessage(inboxID: number, messageID: number) {
-    return this.client.delete(`/inboxes/${inboxID}/messages/${messageID}`).then(this.formatResponse);
+    return this.delete(`/inboxes/${inboxID}/messages/${messageID}`);
   }
 
   public deleteMessages(inboxID: number, messageFilter?: (message: IMessage) => boolean) {
@@ -77,7 +77,7 @@ export class Client {
   }
 
   public getMessageBody(inboxID: number, messageID: number, bodyType: MessageBodyType) {
-    return this.get(`/inboxes/${inboxID}/messages/${messageID}/body.${bodyType.toString()}`);
+    return this.getText(`/inboxes/${inboxID}/messages/${messageID}/body.${bodyType.toString()}`);
   }
 
   public async waitForMessages(
@@ -105,9 +105,5 @@ export class Client {
       return false;
     }
     return true;
-  }
-
-  private formatResponse(response: AxiosResponse) {
-    return JSON.parse(util.format("%j", response.data));
   }
 }

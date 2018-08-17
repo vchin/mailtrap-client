@@ -4,6 +4,12 @@ import { IMessage } from "../client/IMessage";
 
 export class Inbox {
   private self: IInbox;
+  private id: number;
+
+  get ID() {
+    return this.id;
+  }
+
   constructor(private readonly client: Client, private readonly name: string) {}
 
   public async waitForMessages(
@@ -28,6 +34,7 @@ export class Inbox {
     if (!this.self) {
       const inboxes = await this.client.getInboxes((inbox) => inbox.name === this.name);
       this.self = inboxes[0];
+      this.id = inboxes[0].id;
     }
   }
 }

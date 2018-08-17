@@ -1,23 +1,15 @@
-import { inboxes, messages, mock } from "../__MOCKS__/MockMailtrap";
 import { Client, IClientOptions } from "./Client";
 import { MessageBodyType } from "./MessageBodyType";
+import { mock, inboxes, messages } from "../__MOCKS__/MockMailtrap";
 
 const options: IClientOptions = {
-  credentials: {
-    apiToken: "api",
-  },
+  apiToken: "api",
   endpoint: "http://localhost:3000",
 };
 
 describe("Client", () => {
   afterAll(() => {
     mock.close();
-  });
-
-  it("init client with no apiToken or jwtToken throws error", async () => {
-    expect(() => new Client({
-      credentials: {},
-    })).toThrow();
   });
 
   it("can get inboxes", async () => {

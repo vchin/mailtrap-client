@@ -1,6 +1,7 @@
 module.exports = {
   "roots": [
     "<rootDir>/src",
+    "<rootDir>/integration-tests",
   ],
   "transform": {
     "^.+\\.tsx?$": "ts-jest",
@@ -20,4 +21,5 @@ module.exports = {
     "!src/main.ts",
     "!src/__MOCKS__/*.ts",
   ],
+  "setupTestFrameworkScriptFile": "<rootDir>/jest.setup.js"
 };
