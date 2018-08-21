@@ -5,7 +5,7 @@ Simple mailtrap.io client and helper library
 
 # Install
 ```
-npm install --save-dev mailtrap
+npm install --save-dev mailtrap-client
 ```
 # Usage Examples
 ## init

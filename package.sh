@@ -1,5 +1,5 @@
 #!/bin/bash
-rm dist/* -f -r
+rm dist/* -f
 tsc --sourceMap false
 cp package.json dist/package.json
 cp package-lock.json dist/package-lock.json
