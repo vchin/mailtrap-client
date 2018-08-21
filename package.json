@@ -1,9 +1,9 @@
 {
   "name": "mailtrap",
-  "version": "2.0.1",
-  "description": "simple mailtrap.io api",
-  "main": "dist/main.js",
-  "types": "dist/main.d.ts",
+  "version": "2.0.2",
+  "description": "simple mailtrap.io client and library",
+  "main": "main.js",
+  "types": "main.d.ts",
   "scripts": {
     "lint": "tslint src/**/*.ts",
     "build": "tsc",
